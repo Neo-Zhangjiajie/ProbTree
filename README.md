@@ -91,11 +91,10 @@ bash 0_generate_tree.sh
 bash 1_conduct_reasoning.sh
 ```
 
-We have released our generated question decompostion trees in
+We have released our generated question decompostion trees so that you can directly run probablistic reasoning.
 ```
 src/{dataset_name}/Tree_Generation/tree.json # 2wiki, musique, hotpotqa
 ```
-so that you can directly run probablistic reasoning.
 
 We also released our prediction results corresponding to the reported scores in
 ```
