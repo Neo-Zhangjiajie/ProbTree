@@ -75,7 +75,7 @@ Put your Serp API key in `src/hotpotqa/RoHT/question_answering.py` so that you c
 ## Run Experirments
 First generate question decompostion trees, then conduct probablistic reasoning on these trees.
 ```
-cd {dataset_name} # 2wiki, musique, hotpotqa
+cd src/{dataset_name} # 2wiki, musique, hotpotqa
 bash 0_generate_tree.sh
 bash 1_conduct_reasoning.sh
 ```
