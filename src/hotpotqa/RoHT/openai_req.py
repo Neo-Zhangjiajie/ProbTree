@@ -6,7 +6,7 @@ import json, jsonlines
 
 class OpenaiReq():
     def __init__(self):
-        self.url = "http://103.238.162.37:9072/completion/no_cache"
+        self.url = "http://127.0.0.1:10001/api/openai/completion"
         self.cache = {}
         self.cache_path = "./cache.jsonl"
         if os.path.exists(self.cache_path):
@@ -18,8 +18,9 @@ class OpenaiReq():
                 f.close()
     
     def req2openai(self, prompt, model="text-davinci-003", temperature=0, max_tokens=128, stop=None, logprobs=1, use_cache=True):
+        assert isinstance(prompt, str)
         input = (prompt, model, max_tokens, stop, logprobs)
-        if use_cache and isinstance(prompt, str) and temperature == 0 and input in self.cache:
+        if use_cache and temperature == 0 and input in self.cache:
             return self.cache[input], True
         for i in range(3):
             try:
@@ -30,7 +31,6 @@ class OpenaiReq():
                     "max_tokens": max_tokens,
                     "stop": stop,
                     "logprobs": logprobs,
-                    "user_token": "ce99b124-4258-11ee-a59a-9cc2c4278efc"
                 })
                 if response.status_code != 200:
                     raise Exception(response.text)
@@ -39,21 +39,19 @@ class OpenaiReq():
                 err_msg = str(e)
                 print(e)
                 if "reduce your prompt" in err_msg: # this is because the input string too long
-                    if type(prompt) == list:
-                        return ['too long' for _ in range(len(prompt))], False 
-                    else:
-                        return ['too long'], False
-        response = response.json()['choices']
+                    return ['too long'], False
+        try:
+            response = response.json()['choices']
+        except:
+            return ['openai error'], False
         if temperature == 0:
-            if isinstance(prompt, str):
-                prompt = [prompt]
-            for prompt, res in zip(prompt, response):
-                input = (prompt, model, max_tokens, stop, logprobs)
-                if input not in self.cache:
-                    self.cache[input] = [res]
-                    with open(self.cache_path, "a") as f:
-                        f.write("%s\n"%json.dumps({"input": input, "response": [res]}))
-                        f.close()
+            input = (prompt, model, max_tokens, stop, logprobs)
+            res = response[0]
+            if input not in self.cache:
+                self.cache[input] = [res]
+                with open(self.cache_path, "a") as f:
+                    f.write("%s\n"%json.dumps({"input": input, "response": [res]}))
+                    f.close()
         return response, True
 
 if __name__ == "__main__":
